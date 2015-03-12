@@ -40,6 +40,7 @@ int main(int argc, char* argv[])
 	start_color();
 	use_default_colors();
 	init_pair(1, COLOR_WHITE, COLOR_WHITE);
+	init_pair(2, COLOR_BLACK, COLOR_GREEN);
 
 	mvaddch(food.y, food.x, '*');
 
@@ -55,10 +56,21 @@ int main(int argc, char* argv[])
 	mvaddch(snake[2].y, snake[2].x, '*');	
 	attroff(COLOR_PAIR(1));
 
+	int i;
+	for(i=0; i < LINES; i++)
+	{
+		attron(COLOR_PAIR(2));
+		mvprintw(0, 0, "%0*s", COLS, " ");
+		attroff(COLOR_PAIR(2));
+	}
+
+	attron(COLOR_PAIR(2));
 	mvprintw(0, 0, "Score: %d", size-3);
+	attroff(COLOR_PAIR(2));
 
 	while(true)
 	{
+
 		if(lose)
 		{
 			mvprintw(LINES/2,(COLS/2)-8,"You suck and lose");
@@ -73,8 +85,12 @@ int main(int argc, char* argv[])
 			{
 				valid = true;
 				int newX = rand() % COLS;
-				int newY = rand() % LINES;
+				// LINES-1 and newY++ are to make sure the top row is left clear
+				int newY = rand() % (LINES-1);
+				newY++;
+
 				food = (cell){newY,newX};
+
 				int i = 0;
 				for(i;i<size;i++)
 				{
@@ -148,7 +164,10 @@ int main(int argc, char* argv[])
 			// Increase size and realloc memory for snake
 			size++;
 			cell *temp = realloc(snake, size*sizeof(cell));	
+
+			attron(COLOR_PAIR(2));
 			mvprintw(0, 0, "Score: %d", size-3);
+			attroff(COLOR_PAIR(2));
 
 			// Check that reallocation was successful
 			if(temp!=NULL)
@@ -189,7 +208,9 @@ int main(int argc, char* argv[])
 			attroff(COLOR_PAIR(1));
 			grow = false;
 		}	
-		if(snake[0].y >= LINES || snake[0].y < 0 || snake[0].x >= COLS || snake[0].x < 0)
+
+		// do collision detection
+		if(snake[0].y >= LINES || snake[0].y < 1 || snake[0].x >= COLS || snake[0].x < 0)
 		{
 			lose = true;
 		}else{
