@@ -9,7 +9,7 @@ typedef struct
 	int x;
 }cell;
 
-// TODO: slithering over scoreboard writes over text there fix dat
+// TODO: add a space to show speed in top bar
 int main(int argc, char* argv[])
 {
 
@@ -56,6 +56,7 @@ int main(int argc, char* argv[])
 	mvaddch(snake[2].y, snake[2].x, '*');	
 	attroff(COLOR_PAIR(1));
 
+	// draw top bar
 	int i;
 	for(i=0; i < LINES; i++)
 	{
@@ -92,7 +93,7 @@ int main(int argc, char* argv[])
 				food = (cell){newY,newX};
 
 				int i = 0;
-				for(i;i<size;i++)
+				for(i; i < size; i++)
 				{
 					if(snake[0].y == food.y && snake[i].x == food.x)
 					{
@@ -135,7 +136,7 @@ int main(int argc, char* argv[])
 			mvaddch(snake[size-1].y, snake[size-1].x, ' ');
 			int i=size-1;
 			// Shift all cells except the first up one position
-			for(i;i>0;i--)
+			for(i; i > 0; i--)
 			{
 				snake[i].x = snake[i-1].x;	
 				snake[i].y = snake[i-1].y;	
@@ -181,7 +182,7 @@ int main(int argc, char* argv[])
 
 			// Shift all cells except the first up one position
 			int i=size-1;
-			for(i; i>0; i--)
+			for(i; i > 0; i--)
 			{
 				snake[i] = snake[i-1];
 			}
@@ -215,7 +216,7 @@ int main(int argc, char* argv[])
 			lose = true;
 		}else{
 			int a = 1;
-			for(a;a<size;a++)
+			for(a; a < size; a++)
 			{
 				if(snake[0].x == snake[a].x && snake[0].y == snake[a].y)
 				{
