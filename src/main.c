@@ -9,7 +9,7 @@ typedef struct
 	int x;
 }cell;
 
-// TODO: add a space to show speed in top bar
+// TODO: fix collision with top writing snake head over bar
 int main(int argc, char* argv[])
 {
 
@@ -29,6 +29,7 @@ int main(int argc, char* argv[])
 		}
 		delay = 100-(10*(speed-1));
 	}else{
+		speed = 5;
 		delay = 60;
 	}
 
@@ -67,6 +68,7 @@ int main(int argc, char* argv[])
 
 	attron(COLOR_PAIR(2));
 	mvprintw(0, 0, "Score: %d", size-3);
+	mvprintw(0, COLS-9, "Speed: %d", speed);
 	attroff(COLOR_PAIR(2));
 
 	while(true)
