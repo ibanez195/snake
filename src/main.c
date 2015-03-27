@@ -9,7 +9,7 @@ typedef struct
 	int x;
 }cell;
 
-// TODO: fix collision with top writing snake head over bar
+// TODO: add color support with -c flag
 int main(int argc, char* argv[])
 {
 
@@ -216,6 +216,15 @@ int main(int argc, char* argv[])
 		if(snake[0].y >= LINES || snake[0].y < 1 || snake[0].x >= COLS || snake[0].x < 0)
 		{
 			lose = true;
+
+			// redraw top bar character if it was overwritten
+			if(snake[0].y < 1)
+			{
+				attron(COLOR_PAIR(2));
+				mvprintw(snake[0].y, snake[0].x, " ");
+				attroff(COLOR_PAIR(2));
+				
+			}
 		}else{
 			int a = 1;
 			for(a; a < size; a++)
