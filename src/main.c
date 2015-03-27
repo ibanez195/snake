@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include <time.h>
 #include <stdlib.h>
+#include <string.h>
 
 
 typedef struct
@@ -9,7 +10,7 @@ typedef struct
 	int x;
 }cell;
 
-// TODO: add color support with -c flag
+// TODO: add -w flag for wrap around mode
 int main(int argc, char* argv[])
 {
 
@@ -19,19 +20,6 @@ int main(int argc, char* argv[])
 	bool grow = false;
 	bool lose = false;
 
-	// set up speed by looking at arguments
-	int speed;
-	int delay;
-	if(argc > 1){
-		speed = atoi(argv[1]);
-		if(speed > 10){
-			speed = 10;
-		}
-		delay = 100-(10*(speed-1));
-	}else{
-		speed = 5;
-		delay = 60;
-	}
 
 	initscr();
 	cbreak();
@@ -40,8 +28,59 @@ int main(int argc, char* argv[])
 	nodelay(stdscr, TRUE); // Don't wait for keypresses with getch()
 	start_color();
 	use_default_colors();
+
+
+
+	// default snake color if no -c flag
 	init_pair(1, COLOR_WHITE, COLOR_WHITE);
+	// color for bar
 	init_pair(2, COLOR_BLACK, COLOR_GREEN);
+
+	// default speed values
+	int speed = 5;
+	int delay = 60;
+
+	// handle arguments
+	if(argc > 1){
+		int i = 1;
+		while(i < argc)
+		{
+			switch(argv[i][1])
+			{
+				case 'c' :
+					if(strcmp(argv[i+1],"black") == 0)
+					{
+						init_pair(1, COLOR_BLACK, COLOR_BLACK);
+					}else if(strcmp(argv[i+1],"red") == 0){
+						init_pair(1, COLOR_RED, COLOR_RED);
+					}else if(strcmp(argv[i+1],"green") == 0){
+						init_pair(1, COLOR_GREEN, COLOR_GREEN);
+					}else if(strcmp(argv[i+1],"yellow") == 0){
+						init_pair(1, COLOR_YELLOW, COLOR_YELLOW);
+					}else if(strcmp(argv[i+1],"blue") == 0){
+						init_pair(1, COLOR_BLUE, COLOR_BLUE);
+					}else if(strcmp(argv[i+1],"magenta") == 0){
+						init_pair(1, COLOR_MAGENTA, COLOR_MAGENTA);
+					}else if(strcmp(argv[i+1],"cyan") == 0){
+						init_pair(1, COLOR_CYAN, COLOR_CYAN);
+					}else if(strcmp(argv[i+1],"white") == 0){
+						init_pair(1, COLOR_WHITE, COLOR_WHITE);
+					}else{
+						init_pair(1, COLOR_WHITE, COLOR_WHITE);
+					}
+					break;
+				case 's' :
+					speed = atoi(argv[i+1]);
+					if(speed > 10)
+					{
+						speed = 10;
+					}
+					delay = 100-(10*(speed-1));
+					break;
+			}
+			i += 2;
+		}
+	}
 
 	mvaddch(food.y, food.x, '*');
 
@@ -95,7 +134,7 @@ int main(int argc, char* argv[])
 				food = (cell){newY,newX};
 
 				int i = 0;
-				for(i; i < size; i++)
+				for(; i < size; i++)
 				{
 					if(snake[0].y == food.y && snake[i].x == food.x)
 					{
@@ -138,7 +177,7 @@ int main(int argc, char* argv[])
 			mvaddch(snake[size-1].y, snake[size-1].x, ' ');
 			int i=size-1;
 			// Shift all cells except the first up one position
-			for(i; i > 0; i--)
+			for(; i > 0; i--)
 			{
 				snake[i].x = snake[i-1].x;	
 				snake[i].y = snake[i-1].y;	
@@ -184,7 +223,7 @@ int main(int argc, char* argv[])
 
 			// Shift all cells except the first up one position
 			int i=size-1;
-			for(i; i > 0; i--)
+			for(; i > 0; i--)
 			{
 				snake[i] = snake[i-1];
 			}
@@ -227,7 +266,7 @@ int main(int argc, char* argv[])
 			}
 		}else{
 			int a = 1;
-			for(a; a < size; a++)
+			for(; a < size; a++)
 			{
 				if(snake[0].x == snake[a].x && snake[0].y == snake[a].y)
 				{
@@ -244,4 +283,6 @@ int main(int argc, char* argv[])
 
 	getch();
 	endwin();
+
+	return 0;
 }
