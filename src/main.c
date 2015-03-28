@@ -10,7 +10,7 @@ typedef struct
 	int x;
 }cell;
 
-// TODO: add -w flag for wrap around mode
+// TODO: add high score system
 int main(int argc, char* argv[])
 {
 
@@ -33,6 +33,7 @@ int main(int argc, char* argv[])
 
 	// default snake color if no -c flag
 	init_pair(1, COLOR_WHITE, COLOR_WHITE);
+
 	// color for bar
 	init_pair(2, COLOR_BLACK, COLOR_GREEN);
 
@@ -40,45 +41,53 @@ int main(int argc, char* argv[])
 	int speed = 5;
 	int delay = 60;
 
+	bool wrapmode = false;
+
 	// handle arguments
 	if(argc > 1){
 		int i = 1;
 		while(i < argc)
 		{
-			switch(argv[i][1])
+			if(argv[i][0] == '-')
 			{
-				case 'c' :
-					if(strcmp(argv[i+1],"black") == 0)
-					{
-						init_pair(1, COLOR_BLACK, COLOR_BLACK);
-					}else if(strcmp(argv[i+1],"red") == 0){
-						init_pair(1, COLOR_RED, COLOR_RED);
-					}else if(strcmp(argv[i+1],"green") == 0){
-						init_pair(1, COLOR_GREEN, COLOR_GREEN);
-					}else if(strcmp(argv[i+1],"yellow") == 0){
-						init_pair(1, COLOR_YELLOW, COLOR_YELLOW);
-					}else if(strcmp(argv[i+1],"blue") == 0){
-						init_pair(1, COLOR_BLUE, COLOR_BLUE);
-					}else if(strcmp(argv[i+1],"magenta") == 0){
-						init_pair(1, COLOR_MAGENTA, COLOR_MAGENTA);
-					}else if(strcmp(argv[i+1],"cyan") == 0){
-						init_pair(1, COLOR_CYAN, COLOR_CYAN);
-					}else if(strcmp(argv[i+1],"white") == 0){
-						init_pair(1, COLOR_WHITE, COLOR_WHITE);
-					}else{
-						init_pair(1, COLOR_WHITE, COLOR_WHITE);
-					}
-					break;
-				case 's' :
-					speed = atoi(argv[i+1]);
-					if(speed > 10)
-					{
-						speed = 10;
-					}
-					delay = 100-(10*(speed-1));
-					break;
+			switch(argv[i][1])
+				{
+					case 'c' :
+						if(strcmp(argv[i+1],"black") == 0)
+						{
+							init_pair(1, COLOR_BLACK, COLOR_BLACK);
+						}else if(strcmp(argv[i+1],"red") == 0){
+							init_pair(1, COLOR_RED, COLOR_RED);
+						}else if(strcmp(argv[i+1],"green") == 0){
+							init_pair(1, COLOR_GREEN, COLOR_GREEN);
+						}else if(strcmp(argv[i+1],"yellow") == 0){
+							init_pair(1, COLOR_YELLOW, COLOR_YELLOW);
+						}else if(strcmp(argv[i+1],"blue") == 0){
+							init_pair(1, COLOR_BLUE, COLOR_BLUE);
+						}else if(strcmp(argv[i+1],"magenta") == 0){
+							init_pair(1, COLOR_MAGENTA, COLOR_MAGENTA);
+						}else if(strcmp(argv[i+1],"cyan") == 0){
+							init_pair(1, COLOR_CYAN, COLOR_CYAN);
+						}else if(strcmp(argv[i+1],"white") == 0){
+							init_pair(1, COLOR_WHITE, COLOR_WHITE);
+						}else{
+							init_pair(1, COLOR_WHITE, COLOR_WHITE);
+						}
+						break;
+					case 's' :
+						speed = atoi(argv[i+1]);
+						if(speed > 10)
+						{
+							speed = 10;
+						}
+						delay = 100-(10*(speed-1));
+						break;
+					case 'w':
+						wrapmode = true;
+						break;
+				}
 			}
-			i += 2;
+			i += 1;
 		}
 	}
 
@@ -110,6 +119,7 @@ int main(int argc, char* argv[])
 	mvprintw(0, COLS-9, "Speed: %d", speed);
 	attroff(COLOR_PAIR(2));
 
+	// main game loop
 	while(true)
 	{
 
@@ -118,6 +128,7 @@ int main(int argc, char* argv[])
 			mvprintw(LINES/2,(COLS/2)-8,"You suck and lose");
 			break;
 		}
+
 		// Detect collision with food and put it in a new place
 		if(snake[0].y == food.y && snake[0].x == food.x)
 		{
@@ -144,6 +155,7 @@ int main(int argc, char* argv[])
 			}
 			mvaddch(food.y, food.x, '*');
 		}
+
 		// arrow keys return 3 characters when using getch()
 		// \033, [, and a letter A-D indicating which key
 		// this skips the first two characters
@@ -176,12 +188,14 @@ int main(int argc, char* argv[])
 			// Draw over trailing character
 			mvaddch(snake[size-1].y, snake[size-1].x, ' ');
 			int i=size-1;
+
 			// Shift all cells except the first up one position
 			for(; i > 0; i--)
 			{
 				snake[i].x = snake[i-1].x;	
 				snake[i].y = snake[i-1].y;	
 			}
+
 			// Use direction to change position of front cell
 			switch(direction)
 			{
@@ -198,6 +212,27 @@ int main(int argc, char* argv[])
 					snake[0].x--;
 					break;
 			}
+
+			// handle wrapping
+			if(wrapmode)
+			{
+				if(snake[0].x < 0)
+				{
+					snake[0].x = COLS-1;
+				}
+				if(snake[0].x >= COLS)
+				{
+					snake[0].x = 0;
+				}
+
+				if(snake[0].y < 1)
+				{
+					snake[0].y = LINES-1;
+				}else if(snake[0].y >= LINES){
+					snake[0].y = 1;
+				}
+			}
+
 			// Draw new leading character
 			attron(COLOR_PAIR(1));
 			mvaddch(snake[0].y, snake[0].x, '*');
@@ -244,6 +279,27 @@ int main(int argc, char* argv[])
 					snake[0].x--;
 					break;
 			}
+			
+			// handle wrapping
+			if(wrapmode)
+			{
+				if(snake[0].x < 0)
+				{
+					snake[0].x = COLS-1;
+				}
+				if(snake[0].x >= COLS)
+				{
+					snake[0].x = 0;
+				}
+
+				if(snake[0].y < 1)
+				{
+					snake[0].y = LINES-1;
+				}else if(snake[0].y >= LINES){
+					snake[0].y = 1;
+				}
+			}
+
 			// Draw new character reset growth
 			attron(COLOR_PAIR(1));
 			mvaddch(snake[0].y, snake[0].x, '*');
@@ -278,7 +334,8 @@ int main(int argc, char* argv[])
 		
 		refresh();
 		usleep(delay*1000);
-	}
+	}//end main game loop
+
 	nodelay(stdscr, FALSE);
 
 	getch();
