@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
 	for(i=0; i < LINES; i++)
 	{
 		attron(COLOR_PAIR(2));
-		mvprintw(0, 0, "%0*s", COLS, " ");
+		mvprintw(0, 0, "%*s", COLS, " ");
 		attroff(COLOR_PAIR(2));
 	}
 
