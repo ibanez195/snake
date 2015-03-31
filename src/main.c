@@ -106,13 +106,9 @@ int main(int argc, char* argv[])
 	attroff(COLOR_PAIR(1));
 
 	// draw top bar
-	int i;
-	for(i=0; i < LINES; i++)
-	{
-		attron(COLOR_PAIR(2));
-		mvprintw(0, 0, "%*s", COLS, " ");
-		attroff(COLOR_PAIR(2));
-	}
+	attron(COLOR_PAIR(2));
+	mvprintw(0, 0, "%*s", COLS, " ");
+	attroff(COLOR_PAIR(2));
 
 	attron(COLOR_PAIR(2));
 	mvprintw(0, 0, "Score: %d", size-3);
