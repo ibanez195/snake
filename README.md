@@ -21,7 +21,7 @@ p - pause game
 ### Runtime options
 -c <color>: change color of snake
 
--s <speed>: choose speed value between 0-10(default 5)
+-s <speed>: choose speed value between 0-10 (default 5)
 
 -w        : Allow wrapping, snake will warp to opposite wall on collision
 
