@@ -16,6 +16,7 @@ Run program with
 ```
 ### Controls
 Control the snake with the arrow keys
+
 p - pause game
 
 ## Screenshot
