@@ -19,6 +19,7 @@ int main(int argc, char* argv[])
 	cell food = {10,10};
 	bool grow = false;
 	bool lose = false;
+    bool paused = false;
 
 
 	initscr();
@@ -125,209 +126,218 @@ int main(int argc, char* argv[])
 			break;
 		}
 
-		// Detect collision with food and put it in a new place
-		if(snake[0].y == food.y && snake[0].x == food.x)
-		{
-			grow = true;
-			bool valid = false;
-			while(!valid)
-			{
-				valid = true;
-				int newX = rand() % COLS;
-				// LINES-1 and newY++ are to make sure the top row is left clear
-				int newY = rand() % (LINES-1);
-				newY++;
+        if(!paused){
+            // Detect collision with food and put it in a new place
+            if(snake[0].y == food.y && snake[0].x == food.x)
+            {
+                grow = true;
+                bool valid = false;
+                while(!valid)
+                {
+                    valid = true;
+                    int newX = rand() % COLS;
+                    // LINES-1 and newY++ are to make sure the top row is left clear
+                    int newY = rand() % (LINES-1);
+                    newY++;
 
-				food = (cell){newY,newX};
+                    food = (cell){newY,newX};
 
-				int i = 0;
-				for(; i < size; i++)
-				{
-					if(snake[0].y == food.y && snake[i].x == food.x)
-					{
-						valid = false;
-					}
-				}
-			}
-			mvaddch(food.y, food.x, '*');
-		}
+                    int i = 0;
+                    for(; i < size; i++)
+                    {
+                        if(snake[i].y == food.y && snake[i].x == food.x)
+                        {
+                            valid = false;
+                        }
+                    }
+                }
+                mvaddch(food.y, food.x, '*');
+            }
 
-		// arrow keys return 3 characters when using getch()
-		// \033, [, and a letter A-D indicating which key
-		// this skips the first two characters
-		if(getch() == '\033')
-		{
-			// ignore character '[]'
-			getch();
-			switch(getch())
-			{
-				case 'A':
-					if(direction != 1)
-						direction = 0;
-					break;
-				case 'B':
-					if(direction != 0)
-						direction = 1;
-					break;
-				case 'C':
-					if(direction != 3)
-						direction = 2;
-					break;
-				case 'D':
-					if(direction != 2)
-						direction = 3;
-					break;
-			}
-		}
-		if(!grow)
-		{
-			// Draw over trailing character
-			mvaddch(snake[size-1].y, snake[size-1].x, ' ');
-			int i=size-1;
+            // arrow keys return 3 characters when using getch()
+            // \033, [, and a letter A-D indicating which key
+            // this skips the first two characters
+            int key = getch();
+            if(key == '\033')
+            {
+                // ignore character '['
+                getch();
+                switch(getch())
+                {
+                    case 'A':
+                        if(direction != 1)
+                            direction = 0;
+                        break;
+                    case 'B':
+                        if(direction != 0)
+                            direction = 1;
+                        break;
+                    case 'C':
+                        if(direction != 3)
+                            direction = 2;
+                        break;
+                    case 'D':
+                        if(direction != 2)
+                            direction = 3;
+                        break;
+                }
+            }else if(key == 'p'){
+                paused = !paused;
+            }
+            if(!grow)
+            {
+                // Draw over trailing character
+                mvaddch(snake[size-1].y, snake[size-1].x, ' ');
+                int i=size-1;
 
-			// Shift all cells except the first up one position
-			for(; i > 0; i--)
-			{
-				snake[i].x = snake[i-1].x;	
-				snake[i].y = snake[i-1].y;	
-			}
+                // Shift all cells except the first up one position
+                for(; i > 0; i--)
+                {
+                    snake[i].x = snake[i-1].x;	
+                    snake[i].y = snake[i-1].y;	
+                }
 
-			// Use direction to change position of front cell
-			switch(direction)
-			{
-				case 0:
-					snake[0].y--;
-					break;
-				case 1:
-					snake[0].y++;
-					break;
-				case 2:
-					snake[0].x++;
-					break;
-				case 3:
-					snake[0].x--;
-					break;
-			}
+                // Use direction to change position of front cell
+                switch(direction)
+                {
+                    case 0:
+                        snake[0].y--;
+                        break;
+                    case 1:
+                        snake[0].y++;
+                        break;
+                    case 2:
+                        snake[0].x++;
+                        break;
+                    case 3:
+                        snake[0].x--;
+                        break;
+                }
 
-			// handle wrapping
-			if(wrapmode)
-			{
-				if(snake[0].x < 0)
-				{
-					snake[0].x = COLS-1;
-				}
-				if(snake[0].x >= COLS)
-				{
-					snake[0].x = 0;
-				}
+                // handle wrapping
+                if(wrapmode)
+                {
+                    if(snake[0].x < 0)
+                    {
+                        snake[0].x = COLS-1;
+                    }
+                    if(snake[0].x >= COLS)
+                    {
+                        snake[0].x = 0;
+                    }
 
-				if(snake[0].y < 1)
-				{
-					snake[0].y = LINES-1;
-				}else if(snake[0].y >= LINES){
-					snake[0].y = 1;
-				}
-			}
+                    if(snake[0].y < 1)
+                    {
+                        snake[0].y = LINES-1;
+                    }else if(snake[0].y >= LINES){
+                        snake[0].y = 1;
+                    }
+                }
 
-			// Draw new leading character
-			attron(COLOR_PAIR(1));
-			mvaddch(snake[0].y, snake[0].x, '*');
-			attroff(COLOR_PAIR(1));
+                // Draw new leading character
+                attron(COLOR_PAIR(1));
+                mvaddch(snake[0].y, snake[0].x, '*');
+                attroff(COLOR_PAIR(1));
+            }else{
+                // Increase size and realloc memory for snake
+                size++;
+                cell *temp = realloc(snake, size*sizeof(cell));	
+
+                attron(COLOR_PAIR(2));
+                mvprintw(0, 0, "Score: %d", size-3);
+                attroff(COLOR_PAIR(2));
+
+                // Check that reallocation was successful
+                if(temp!=NULL)
+                {
+                    snake = temp;
+                }else{
+                    free(snake);
+                    mvprintw(20,20,"Error allocating memory to temp");
+                    return 1;
+                }
+
+                // Shift all cells except the first up one position
+                int i=size-1;
+                for(; i > 0; i--)
+                {
+                    snake[i] = snake[i-1];
+                }
+
+                // Use direction to change position of front cell
+                switch(direction)
+                {
+                    case 0:
+                        snake[0].y--;
+                        break;
+                    case 1:
+                        snake[0].y++;
+                        break;
+                    case 2:
+                        snake[0].x++;
+                        break;
+                    case 3:
+                        snake[0].x--;
+                        break;
+                }
+                
+                // handle wrapping
+                if(wrapmode)
+                {
+                    if(snake[0].x < 0)
+                    {
+                        snake[0].x = COLS-1;
+                    }
+                    if(snake[0].x >= COLS)
+                    {
+                        snake[0].x = 0;
+                    }
+
+                    if(snake[0].y < 1)
+                    {
+                        snake[0].y = LINES-1;
+                    }else if(snake[0].y >= LINES){
+                        snake[0].y = 1;
+                    }
+                }
+
+                // Draw new character reset growth
+                attron(COLOR_PAIR(1));
+                mvaddch(snake[0].y, snake[0].x, '*');
+                attroff(COLOR_PAIR(1));
+                grow = false;
+            }	
+
+            // do collision detection
+            if(snake[0].y >= LINES || snake[0].y < 1 || snake[0].x >= COLS || snake[0].x < 0)
+            {
+                lose = true;
+
+                // redraw top bar character if it was overwritten
+                if(snake[0].y < 1)
+                {
+                    attron(COLOR_PAIR(2));
+                    mvprintw(snake[0].y, snake[0].x, " ");
+                    attroff(COLOR_PAIR(2));
+                    
+                }
+            }else{
+                int a = 1;
+                for(; a < size; a++)
+                {
+                    if(snake[0].x == snake[a].x && snake[0].y == snake[a].y)
+                    {
+                        lose = true;
+                        break;
+                    }
+                }
+            }
 		}else{
-			// Increase size and realloc memory for snake
-			size++;
-			cell *temp = realloc(snake, size*sizeof(cell));	
-
-			attron(COLOR_PAIR(2));
-			mvprintw(0, 0, "Score: %d", size-3);
-			attroff(COLOR_PAIR(2));
-
-			// Check that reallocation was successful
-			if(temp!=NULL)
-			{
-				snake = temp;
-			}else{
-				free(snake);
-				mvprintw(20,20,"Error allocating memory to temp");
-				return 1;
-			}
-
-			// Shift all cells except the first up one position
-			int i=size-1;
-			for(; i > 0; i--)
-			{
-				snake[i] = snake[i-1];
-			}
-
-			// Use direction to change position of front cell
-			switch(direction)
-			{
-				case 0:
-					snake[0].y--;
-					break;
-				case 1:
-					snake[0].y++;
-					break;
-				case 2:
-					snake[0].x++;
-					break;
-				case 3:
-					snake[0].x--;
-					break;
-			}
-			
-			// handle wrapping
-			if(wrapmode)
-			{
-				if(snake[0].x < 0)
-				{
-					snake[0].x = COLS-1;
-				}
-				if(snake[0].x >= COLS)
-				{
-					snake[0].x = 0;
-				}
-
-				if(snake[0].y < 1)
-				{
-					snake[0].y = LINES-1;
-				}else if(snake[0].y >= LINES){
-					snake[0].y = 1;
-				}
-			}
-
-			// Draw new character reset growth
-			attron(COLOR_PAIR(1));
-			mvaddch(snake[0].y, snake[0].x, '*');
-			attroff(COLOR_PAIR(1));
-			grow = false;
-		}	
-
-		// do collision detection
-		if(snake[0].y >= LINES || snake[0].y < 1 || snake[0].x >= COLS || snake[0].x < 0)
-		{
-			lose = true;
-
-			// redraw top bar character if it was overwritten
-			if(snake[0].y < 1)
-			{
-				attron(COLOR_PAIR(2));
-				mvprintw(snake[0].y, snake[0].x, " ");
-				attroff(COLOR_PAIR(2));
-				
-			}
-		}else{
-			int a = 1;
-			for(; a < size; a++)
-			{
-				if(snake[0].x == snake[a].x && snake[0].y == snake[a].y)
-				{
-					lose = true;
-					break;
-				}
-			}
-		}
-		
+            int key = getch();
+            if(key == 'p'){
+                paused = !paused;
+            }
+        }// end if !paused
 		refresh();
 		usleep(delay*1000);
 	}//end main game loop
